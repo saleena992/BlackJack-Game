@@ -7,6 +7,11 @@ public class BlackjackGame {
     private Dealer dealer;
     private Scanner scanner;
 
+    private int playerScore = 0;
+    private int dealerScore = 0;
+    private int roundCount = 0;
+    private final int MAX_ROUNDS = 4;
+
     public BlackjackGame() {
         deck = new Deck();
         player = new Player();
@@ -17,13 +22,24 @@ public class BlackjackGame {
     public void startGame() {
         System.out.println("Welcome to Blackjack!");
 
-        boolean playAgain;
-        do {
+        while (roundCount < MAX_ROUNDS) {
+            System.out.println("\n--- Round " + (roundCount + 1) + " ---");
             playRound();
-            System.out.print("\nDo you want to play again? (yes/no): ");
-            playAgain = scanner.nextLine().trim().equalsIgnoreCase("yes");
+            roundCount++;
             resetHands();
-        } while (playAgain);
+        }
+
+        System.out.println("\n=== Final Results After " + MAX_ROUNDS + " Rounds ===");
+        System.out.println("Player Wins: " + playerScore);
+        System.out.println("Dealer Wins: " + dealerScore);
+
+        if (playerScore > dealerScore) {
+            System.out.println("🏆 Overall Winner: Player!");
+        } else if (dealerScore > playerScore) {
+            System.out.println("🏆 Overall Winner: Dealer!");
+        } else {
+            System.out.println("🤝 It's a tie overall!");
+        }
 
         System.out.println("Thanks for playing!");
     }
@@ -60,16 +76,16 @@ public class BlackjackGame {
             }
         }
 
-        // If player busts, dealer doesn't play
+        // Dealer plays only if player hasn't busted
         if (player.getHandTotal() <= 21) {
             dealer.play(deck);
         }
 
-        // Evaluate result
-        checkBlackjackOrBust();
+        // Evaluate winner and update score
+        checkWinnerAndScore();
     }
 
-    private void checkBlackjackOrBust() {
+    private void checkWinnerAndScore() {
         int playerTotal = player.getHandTotal();
         int dealerTotal = dealer.getHandTotal();
 
@@ -79,12 +95,16 @@ public class BlackjackGame {
 
         if (playerTotal > 21) {
             System.out.println("You busted. Dealer wins!");
+            dealerScore++;
         } else if (dealerTotal > 21) {
             System.out.println("Dealer busted. You win!");
+            playerScore++;
         } else if (playerTotal > dealerTotal) {
             System.out.println("You win!");
+            playerScore++;
         } else if (playerTotal < dealerTotal) {
             System.out.println("Dealer wins!");
+            dealerScore++;
         } else {
             System.out.println("It's a tie!");
         }
